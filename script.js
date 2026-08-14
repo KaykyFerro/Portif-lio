@@ -1,24 +1,5 @@
 document.getElementById('year').textContent = new Date().getFullYear();
 
-const themeToggle = document.getElementById('theme-toggle');
-const root = document.documentElement;
-
-function updateThemeButton() {
-  const light = root.classList.contains('theme-light');
-  themeToggle.textContent = light ? '☀' : '☾';
-  themeToggle.setAttribute('aria-label', light ? 'Ativar tema escuro' : 'Ativar tema claro');
-  themeToggle.title = light ? 'Ativar tema escuro' : 'Ativar tema claro';
-}
-
-if (themeToggle) {
-  updateThemeButton();
-  themeToggle.addEventListener('click', () => {
-    const light = root.classList.toggle('theme-light');
-    localStorage.setItem('theme', light ? 'light' : 'dark');
-    updateThemeButton();
-  });
-}
-
 const links = document.querySelectorAll('a[href^="#"]');
 links.forEach(link => link.addEventListener('click', e => {
   const target = document.querySelector(link.getAttribute('href'));
@@ -71,3 +52,37 @@ if (form) {
     }
   });
 }
+
+// Tema: respeita a preferência do sistema e permite alternância manual.
+const themeToggle = document.getElementById('theme-toggle');
+const root = document.documentElement;
+const systemTheme = window.matchMedia('(prefers-color-scheme: light)');
+
+function applyTheme(theme) {
+  const light = theme === 'light';
+  root.classList.toggle('theme-light', light);
+  if (themeToggle) {
+    themeToggle.textContent = light ? '☀' : '☾';
+    themeToggle.setAttribute('aria-label', light ? 'Ativar tema escuro' : 'Ativar tema claro');
+    themeToggle.title = light ? 'Ativar tema escuro' : 'Ativar tema claro';
+  }
+}
+
+function getTheme() {
+  const saved = localStorage.getItem('theme');
+  return saved || (systemTheme.matches ? 'light' : 'dark');
+}
+
+applyTheme(getTheme());
+
+if (themeToggle) {
+  themeToggle.addEventListener('click', () => {
+    const next = root.classList.contains('theme-light') ? 'dark' : 'light';
+    localStorage.setItem('theme', next);
+    applyTheme(next);
+  });
+}
+
+systemTheme.addEventListener('change', event => {
+  if (!localStorage.getItem('theme')) applyTheme(event.matches ? 'light' : 'dark');
+});
