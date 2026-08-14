@@ -1,5 +1,24 @@
 document.getElementById('year').textContent = new Date().getFullYear();
 
+const themeToggle = document.getElementById('theme-toggle');
+const root = document.documentElement;
+
+function updateThemeButton() {
+  const light = root.classList.contains('theme-light');
+  themeToggle.textContent = light ? '☀' : '☾';
+  themeToggle.setAttribute('aria-label', light ? 'Ativar tema escuro' : 'Ativar tema claro');
+  themeToggle.title = light ? 'Ativar tema escuro' : 'Ativar tema claro';
+}
+
+if (themeToggle) {
+  updateThemeButton();
+  themeToggle.addEventListener('click', () => {
+    const light = root.classList.toggle('theme-light');
+    localStorage.setItem('theme', light ? 'light' : 'dark');
+    updateThemeButton();
+  });
+}
+
 const links = document.querySelectorAll('a[href^="#"]');
 links.forEach(link => link.addEventListener('click', e => {
   const target = document.querySelector(link.getAttribute('href'));
